@@ -2,4 +2,6 @@
     <string name="app_name">Gifhub</string>
 
     <string name="take_picture">Take picture</string>
+    <string name="no_gif_yet_text">No gifs yet? Get one</string>
+    <string name="make_gif">Make GIF</string>
 </resources>

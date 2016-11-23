@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -25,7 +26,7 @@ public class DisplayActivity extends AppCompatActivity {
 
     private final String GIF_POSITION =  "position";
 
-    private int position;
+    private String  path;
 
     private Button shareOnFbButton;
 
@@ -41,33 +42,37 @@ public class DisplayActivity extends AppCompatActivity {
             parent.addView(moviewView);
         }*/
 
-        position = getIntent().getIntExtra(GIF_POSITION,1);
+        path = getIntent().getStringExtra(GIF_POSITION);
+        Log.d(TAG,"path received "+path);
         gifImageView = (GifImageView)findViewById(R.id.gif_image_view);
 
-        if(getBitmapBytes(position) != null) {
-            gifImageView.setBytes(getBitmapBytes(position));
+        if(getBitmapBytes(path) != null) {
+            gifImageView.setBytes(getBitmapBytes(path));
         }
 
         shareOnFbButton = (Button)findViewById(R.id.share_on_fb);
         shareOnFbButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String uriToImage = Environment.getExternalStorageDirectory()+"/mygif_"+
-                        position+".gif";
-                Intent waIntent = new Intent(Intent.ACTION_SEND);
-                waIntent.setType("image/gif");
-                waIntent.setPackage("com.facebook.katana");
-                if (waIntent != null) {
-                    waIntent.putExtra(Intent.EXTRA_STREAM, uriToImage);
-                    startActivity(Intent.createChooser(waIntent, "Share with"));
-                } else {
-                    Toast.makeText(DisplayActivity.this, "Facebook not Installed", Toast.LENGTH_SHORT)
-                            .show();
-                }
+                share();
 
             }
         });
 
+    }
+
+    private void share(){
+        String uriToImage = path;
+        Intent waIntent = new Intent(Intent.ACTION_SEND);
+        waIntent.setType("image/gif");
+      //  waIntent.setPackage("com.facebook.katana");
+       // if (waIntent != null) {
+            waIntent.putExtra(Intent.EXTRA_STREAM, uriToImage);
+            startActivity(Intent.createChooser(waIntent, "Share with"));
+       /* } else {
+            Toast.makeText(DisplayActivity.this, "Facebook not Installed", Toast.LENGTH_SHORT)
+                    .show();
+        }*/
     }
 
     @Override
@@ -86,8 +91,8 @@ public class DisplayActivity extends AppCompatActivity {
 
 
 
-    private byte[] getBitmapBytes(int indx){
-        String path = Environment.getExternalStorageDirectory()+"/mygif_"+indx+".gif";
+    private byte[] getBitmapBytes(String path){
+       // String path = Environment.getExternalStorageDirectory()+"/mygif_"+indx+".gif";
         File file = new File(path);
         int size = (int) file.length();
         byte[] bytes = new byte[size];

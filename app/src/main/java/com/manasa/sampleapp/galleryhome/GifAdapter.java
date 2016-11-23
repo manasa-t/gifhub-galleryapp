@@ -39,15 +39,14 @@ public class GifAdapter extends BaseAdapter {
     }
 
     private void getPaths(){
-        if(PreferenceManager.getInstance(mContext).getGifCount()> 1) {
+        if(PreferenceManager.getInstance(mContext).getGifCount()>= 1) {
             for (int i = 1; i <= PreferenceManager.getInstance(mContext).getGifCount(); i++) {
                 String p = Environment.getExternalStorageDirectory() + "/mygif_" + i + ".gif";
-                Log.d(TAG,"each path "+i+" p");
-                paths.add(p);
+                if(new File(p).exists()) {
+                    Log.d(TAG, "each path " + i + " p");
+                    paths.add(p);
+                }
             }
-        }else{
-            String p = Environment.getExternalStorageDirectory() + "/mygif_1.gif";
-            paths.add(p);
         }
     }
     @Override

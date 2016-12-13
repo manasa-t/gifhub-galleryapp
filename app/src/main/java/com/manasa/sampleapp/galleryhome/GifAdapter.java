@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 
 import com.felipecsl.gifimageview.library.GifImageView;
 import com.manasa.sampleapp.R;
+import com.manasa.sampleapp.utils.Constants;
 import com.manasa.sampleapp.utils.PreferenceManager;
 
 import java.io.BufferedInputStream;
@@ -18,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.zip.Inflater;
 
 /**
@@ -39,14 +41,18 @@ public class GifAdapter extends BaseAdapter {
     }
 
     private void getPaths(){
+        Log.d(TAG,"gif count in getpaths "+PreferenceManager.getInstance(mContext).getGifCount());
         if(PreferenceManager.getInstance(mContext).getGifCount()>= 1) {
             for (int i = 1; i <= PreferenceManager.getInstance(mContext).getGifCount(); i++) {
-                String p = Environment.getExternalStorageDirectory() + "/mygif_" + i + ".gif";
+                String p = Constants.PATH_TO_GIF_FILES + i + ".gif";
                 if(new File(p).exists()) {
                     Log.d(TAG, "each path " + i + " p");
                     paths.add(p);
+                    Collections.reverse(paths);
                 }
             }
+        }else{
+            Log.d(TAG,"gif count is 0");
         }
     }
     @Override

@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
+import android.graphics.Typeface;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -19,6 +20,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.InputConfiguration;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
@@ -41,6 +43,7 @@ import android.widget.Toast;
 import com.manasa.sampleapp.R;
 import com.manasa.sampleapp.galleryhome.GalleryHomeActivity;
 import com.manasa.sampleapp.gifencoder.AnimatedGifEncoder;
+import com.manasa.sampleapp.utils.Constants;
 import com.manasa.sampleapp.utils.PreferenceManager;
 
 import java.io.ByteArrayOutputStream;
@@ -76,7 +79,7 @@ public class Main2Activity extends AppCompatActivity {
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
     // gif part ----------------------
-    private int NUM_OF_IMAGES = 4;
+    private int NUM_OF_IMAGES = 3;
     private ArrayList<Bitmap> gifFrames;
     private ProgressDialog mProgressDialog;
     //------------------------------------
@@ -88,9 +91,12 @@ public class Main2Activity extends AppCompatActivity {
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
         takePictureButton = (Button) findViewById(R.id.btn_takepicture);
+      //  takePictureButton.setTypeface(Typeface.createFromAsset(getAssets(),"bungamelatiputih.ttf"));
         assert takePictureButton != null;
         gifFrames = new ArrayList<>();
         mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
         mProgressDialog.setMessage("Making your gif... Please wait");
         mProgressDialog.setCancelable(false);
         takePictureButton.setOnClickListener(new View.OnClickListener() {
@@ -172,8 +178,8 @@ public class Main2Activity extends AppCompatActivity {
             if (characteristics != null) {
                 jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
             }
-            int width = 480;
-            int height = 320;
+            int width = 640;
+            int height = 480;
 
            /* if (jpegSizes != null && 0 < jpegSizes.length) {
                 width = jpegSizes[0].getWidth();
@@ -184,17 +190,29 @@ public class Main2Activity extends AppCompatActivity {
             List<Surface> outputSurfaces = new ArrayList<Surface>(2);
             outputSurfaces.add(reader.getSurface());
             outputSurfaces.add(new Surface(textureView.getSurfaceTexture()));
+
+
+
+
             final CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             captureBuilder.addTarget(reader.getSurface());
+            captureBuilder.addTarget(new Surface(textureView.getSurfaceTexture()));
+
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
             // Orientation
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
 
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
          //   final File file = new File(Environment.getExternalStorageDirectory()+"/pic.jpg");
+            final List<CaptureRequest> requests = new ArrayList<CaptureRequest>();
+            requests.add(captureBuilder.build());
+            requests.add(captureBuilder.build());
+            requests.add(captureBuilder.build());
+           // requests.add(captureBuilder.build());
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
+                    Log.d(TAG,"Image Avaliable");
                     Image image = null;
                     try {
                         image = reader.acquireLatestImage();
@@ -215,13 +233,15 @@ public class Main2Activity extends AppCompatActivity {
                             Log.d(TAG,"gifframes greater than num of images");
                             byte[] gifArr = generateGIF(gifFrames);
                             Log.d(TAG,"GIF generated");
-                            Bitmap gif = BitmapFactory.decodeByteArray(gifArr, 0, gifArr.length);
+                          //  Bitmap gif = BitmapFactory.decodeByteArray(gifArr, 0, gifArr.length);
                             Log.d(TAG,"got array from gif");
                             saveGif(gifArr);
                             Log.d(TAG,"saved gif");
                             gifFrames.clear();
+                            closeCamera();
                             goToNextDisplay();
                         }
+
                        // save(bytes);
                    /* } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -252,14 +272,21 @@ public class Main2Activity extends AppCompatActivity {
                     super.onCaptureCompleted(session, request, result);
                     Toast.makeText(Main2Activity.this, "took picture:" + gifFrames.size(), Toast.LENGTH_SHORT).show();
 
-                    createCameraPreview();
+                    if(gifFrames.size()<NUM_OF_IMAGES){
+                         createCameraPreview();
+                    }
+
                 }
             };
             cameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
+
+
                 @Override
                 public void onConfigured(CameraCaptureSession session) {
                     try {
-                        session.capture(captureBuilder.build(), captureListener, mBackgroundHandler);
+                       // session.capture(captureBuilder.build(), captureListener, mBackgroundHandler);
+                      //  session.setRepeatingRequest(captureBuilder.build(),captureListener,mBackgroundHandler);
+                        session.setRepeatingBurst(requests,captureListener,mBackgroundHandler);
                     } catch (CameraAccessException e) {
                         e.printStackTrace();
                     }
@@ -340,6 +367,7 @@ public class Main2Activity extends AppCompatActivity {
         }
         captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
         try {
+
             cameraCaptureSessions.setRepeatingRequest(captureRequestBuilder.build(), null, mBackgroundHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -405,8 +433,11 @@ public class Main2Activity extends AppCompatActivity {
         FileOutputStream outStream = null;
         try{
             int indx = PreferenceManager.getInstance(getApplicationContext()).getGifCount()+1;
-            outStream = new FileOutputStream(Environment.getExternalStorageDirectory()+"/mygif_"+
-                    indx+".gif");
+            String root = Environment.getExternalStorageDirectory().toString();
+            File myDir = new File(root+"/gifhub");
+            myDir.mkdirs();
+            File gifFile = new File(myDir,"mygif_"+indx+".gif");
+            outStream = new FileOutputStream(gifFile);
             outStream.write(bitmap);
             Log.d(TAG,"successfully written gif");
             PreferenceManager.getInstance(getApplicationContext()).saveGifCount();

@@ -2,4 +2,14 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!--Display Activity-->
+    <dimen name="button_text_size">14sp</dimen>
+
+    <!--Gallery Home Activity-->
+    <dimen name = "no_gifs_text_size">18sp</dimen>
+    <dimen name = "make_gif_button_text_size">14sp</dimen>
+
+    <!--Main Activity 2 -->
+    <dimen name = "take_button_text_size">14sp</dimen>
 </resources>

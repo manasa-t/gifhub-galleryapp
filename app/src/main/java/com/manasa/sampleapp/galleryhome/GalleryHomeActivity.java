@@ -1,6 +1,7 @@
 package com.manasa.sampleapp.galleryhome;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.manasa.sampleapp.R;
 import com.manasa.sampleapp.ui.DisplayActivity;
@@ -32,6 +34,8 @@ public class GalleryHomeActivity extends AppCompatActivity implements AdapterVie
 
     private Button makeGif;
 
+    private TextView nogifsTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +45,9 @@ public class GalleryHomeActivity extends AppCompatActivity implements AdapterVie
         mGridView = (GridView)findViewById(R.id.gridview);
         noGifLayout = (LinearLayout)findViewById(R.id.no_gif_layout);
         makeGif = (Button)findViewById(R.id.make_gif_button);
+      //  makeGif.setTypeface(Typeface.createFromAsset(getAssets(),"bungamelatiputih.ttf"));
+        nogifsTextView = (TextView)findViewById(R.id.no_gif_yet);
+       // nogifsTextView.setTypeface(Typeface.createFromAsset(getAssets(),"bungamelatiputih.ttf"));
         setData();
     }
 
@@ -60,7 +67,7 @@ public class GalleryHomeActivity extends AppCompatActivity implements AdapterVie
                 public void onClick(View v) {
                     Intent intent = new Intent(GalleryHomeActivity.this, Main2Activity.class);
                     startActivity(intent);
-                    finish();
+
                 }
             });
         }

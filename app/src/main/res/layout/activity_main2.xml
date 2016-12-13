@@ -24,7 +24,9 @@
         android:layout_marginBottom="16dp"
         android:layout_marginTop="16dp"
         android:text="@string/take_picture"
-        android:background="@color/colorPrimary"
+        android:textSize="@dimen/take_button_text_size"
+        android:typeface="serif"
+        android:background="@color/purple"
         android:textColor="@android:color/white"
         android:padding="10dp"/>
 </RelativeLayout>

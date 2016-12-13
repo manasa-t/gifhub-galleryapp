@@ -1,6 +1,7 @@
 package com.manasa.sampleapp.ui;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,13 +35,6 @@ public class DisplayActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
-       /* RelativeLayout parent = (RelativeLayout)findViewById(R.id.activity_display);
-        if(getImputStream() != null) {
-            GifDecoderView moviewView = new GifDecoderView(this, getImputStream());
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-            moviewView.setLayoutParams(params);
-            parent.addView(moviewView);
-        }*/
 
         path = getIntent().getStringExtra(GIF_POSITION);
         Log.d(TAG,"path received "+path);
@@ -51,6 +45,7 @@ public class DisplayActivity extends AppCompatActivity {
         }
 
         shareOnFbButton = (Button)findViewById(R.id.share_on_fb);
+       // shareOnFbButton.setTypeface(Typeface.createFromAsset(getAssets(),"bungamelatiputih.ttf"));
         shareOnFbButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,20 +54,23 @@ public class DisplayActivity extends AppCompatActivity {
             }
         });
 
+
+
+
     }
 
     private void share(){
         String uriToImage = path;
         Intent waIntent = new Intent(Intent.ACTION_SEND);
         waIntent.setType("image/gif");
-      //  waIntent.setPackage("com.facebook.katana");
-       // if (waIntent != null) {
+        waIntent.setPackage("com.facebook.katana");
+        if (waIntent != null) {
             waIntent.putExtra(Intent.EXTRA_STREAM, uriToImage);
             startActivity(Intent.createChooser(waIntent, "Share with"));
-       /* } else {
+        } else {
             Toast.makeText(DisplayActivity.this, "Facebook not Installed", Toast.LENGTH_SHORT)
                     .show();
-        }*/
+        }
     }
 
     @Override
